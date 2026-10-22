@@ -54,3 +54,7 @@
 - release 已分别交叉编译 arm64 与 x86_64，并用 lipo 合成通用 Mach-O；`lipo -archs` 验证包含两种架构，签名完整性通过。
 - 通用包已成功生成 DMG；Intel 仅有编译证据，未在 Intel 实机运行。
 - 提交 80d10cb 的 GitHub macOS CI 已完成并通过：https://github.com/lindapu-1/violet-audio/actions/runs/39810860213 。
+
+## 钥匙串实测
+- 使用产品 KeyStore 的实现，对随机命名的独立测试 account 执行创建、读取、更新并再次读取，均通过。
+- 只使用合成测试值，退出时精确删除该测试 account，没有读取或覆盖用户的生产 Key。
