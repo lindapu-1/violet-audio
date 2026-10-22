@@ -21,6 +21,24 @@ final class AudioRingTests: XCTestCase {
             XCTAssertEqual(ring.snapshot().startFrame, Int64(max(0, all.count - 21)))
         }
     }
+    func testPauseDoesNotMakeOldSpeechAppearRecent() {
+        let ring = AudioRing(sampleRate: 2, seconds: 4)
+        ring.append([1, 2, 3, 4]); ring.appendSilence(seconds: 1.5); ring.append([5])
+        XCTAssertEqual(ring.snapshot().samples, [1,2,3,4,0,0,0,5])
+        ring.appendSilence(seconds: 3600); ring.append([6])
+        XCTAssertEqual(ring.snapshot().samples, [0,0,0,0,0,0,0,6])
+        XCTAssertEqual(ring.snapshot().duration, 4)
+    }
+    func testFullThirtyMinuteCapacityAndExpiry() {
+        let ring = AudioRing()
+        let second = Array(repeating: Float(0.25), count: 16000)
+        for _ in 0..<1801 { ring.append(second) }
+        let shot = ring.snapshot()
+        XCTAssertEqual(shot.duration, 1800)
+        XCTAssertEqual(shot.startFrame, 16000)
+        XCTAssertEqual(shot.samples.count, 28_800_000)
+        XCTAssertEqual(shot.peaks(bins: 180), Array(repeating: Float(0.25), count: 180))
+    }
     func testWavAndPeaks() {
         let ring = AudioRing(sampleRate: 4, seconds: 1); ring.append([0,-0.5,1,0])
         let shot = ring.snapshot(); XCTAssertEqual(shot.peaks(bins: 2), [0.5,1])

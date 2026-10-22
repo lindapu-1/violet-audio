@@ -9,6 +9,7 @@ import VioletCore
     @Published var error: String?
     let ring = AudioRing()
     private var stream: SCStream?
+    private var stoppedAt: Date?
     private var output: SystemAudioOutput?
     func start() async {
         guard !recording, !starting else { return }
@@ -23,11 +24,12 @@ import VioletCore
             config.capturesAudio = true; config.sampleRate = 16000; config.channelCount = 1
             config.excludesCurrentProcessAudio = true
             let output = SystemAudioOutput(ring: ring) { [weak self] message in
-                Task { @MainActor in self?.error = message; self?.recording = false }
+                Task { @MainActor in self?.error = message; self?.recording = false; self?.stoppedAt = Date() }
             }
             let stream = SCStream(filter: filter, configuration: config, delegate: output)
             try stream.addStreamOutput(output, type: .audio, sampleHandlerQueue: DispatchQueue(label: "app.violet.system-audio"))
             self.output = output; self.stream = stream
+            if let stoppedAt { ring.appendSilence(seconds: Date().timeIntervalSince(stoppedAt)); self.stoppedAt = nil }
             try await stream.startCapture()
             recording = true; error = nil
             UserDefaults.standard.set(true, forKey: "systemRecordingEnabled")
@@ -42,6 +44,7 @@ import VioletCore
         UserDefaults.standard.set(wanted, forKey: "systemRecordingEnabled")
     }
     func stop() async {
+        if recording { stoppedAt = Date() }
         UserDefaults.standard.set(false, forKey: "systemRecordingEnabled")
         do { try await stream?.stopCapture() } catch { self.error = error.localizedDescription }
         recording = false; stream = nil; output = nil

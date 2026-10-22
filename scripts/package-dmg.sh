@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-./scripts/build-app.sh
+CONFIGURATION=release ./scripts/build-app.sh
 stage=$(mktemp -d "${TMPDIR:-/tmp}/violet-dmg.XXXXXX")
 trap 'rm -rf "$stage"' EXIT
 ditto .build/Violet.app "$stage/Violet.app"

@@ -20,5 +20,11 @@ cat > "$app/Contents/Info.plist" <<'PLIST'
 <key>NSMicrophoneUsageDescription</key><string>持续在本地保留最近的音频，仅在你选择片段并点击转写时发送给所配置的服务。</string>
 </dict></plist>
 PLIST
-codesign --force --sign - "$app"
+identity="${SIGNING_IDENTITY:--}"
+if [[ "$identity" == "-" ]]; then
+  codesign --force --sign - "$app"
+else
+  codesign --force --sign "$identity" --options runtime --timestamp --entitlements Resources/Violet.entitlements "$app"
+fi
+codesign --verify --deep --strict "$app"
 echo "$PWD/$app"

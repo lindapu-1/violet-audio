@@ -14,6 +14,9 @@ public final class AudioRing: @unchecked Sendable {
     }
     public func append(_ samples: [Float]) {
         lock.lock(); defer { lock.unlock() }
+        appendLocked(samples)
+    }
+    private func appendLocked(_ samples: [Float]) {
         let retained = min(samples.count, storage.count)
         let skip = samples.count - retained
         position += Int64(skip)
@@ -22,6 +25,15 @@ public final class AudioRing: @unchecked Sendable {
         storage.replaceSubrange(offset..<(offset + firstCount), with: samples[skip..<(skip + firstCount)])
         if firstCount < retained { storage.replaceSubrange(0..<(retained-firstCount), with: samples[(skip+firstCount)...]) }
         position += Int64(retained)
+    }
+    /// Preserve elapsed pauses on the timeline without allocating the entire gap.
+    public func appendSilence(seconds: Double) {
+        guard seconds.isFinite, seconds > 0 else { return }
+        let count = Int64(min(seconds, 31_536_000) * Double(sampleRate))
+        lock.lock(); defer { lock.unlock() }
+        let retained = min(count, Int64(storage.count))
+        position += count - retained
+        appendLocked(Array(repeating: 0, count: Int(retained)))
     }
     public func snapshot() -> AudioSnapshot {
         lock.lock(); defer { lock.unlock() }

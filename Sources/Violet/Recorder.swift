@@ -8,6 +8,7 @@ import VioletCore
     let ring = AudioRing()
     private let engine = AVAudioEngine()
     private var installed = false
+    private var stoppedAt: Date?
     private var observers: [NSObjectProtocol] = []
     private var recovery: Task<Void, Never>?
     init() {
@@ -18,6 +19,7 @@ import VioletCore
     private func recover() {
         guard recording else { return }
         recovery?.cancel()
+        stoppedAt = Date()
         engine.stop()
         if installed { engine.inputNode.removeTap(onBus: 0); installed = false }
         recording = false
@@ -43,6 +45,7 @@ import VioletCore
               let converter = AVAudioConverter(from: source, to: target) else {
             error = "没有可用的麦克风。"; return
         }
+        if let stoppedAt { ring.appendSilence(seconds: Date().timeIntervalSince(stoppedAt)); self.stoppedAt = nil }
         let destination = ring
         input.installTap(onBus: 0, bufferSize: 4096, format: source) { buffer, _ in
             let capacity = AVAudioFrameCount(ceil(Double(buffer.frameLength) * 16000 / source.sampleRate) + 64)
@@ -67,6 +70,7 @@ import VioletCore
         UserDefaults.standard.set(wanted, forKey: "recordingEnabled")
     }
     func stop() {
+        if recording { stoppedAt = Date() }
         recovery?.cancel(); recovery = nil
         UserDefaults.standard.set(false, forKey: "recordingEnabled")
         engine.stop()
