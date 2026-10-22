@@ -4,7 +4,7 @@
 - `swift test`：环形缓冲覆盖、快照稳定性、选段边界、WAV 字节编码、Markdown 历史与 latest 原子保存，共 3 项通过。
 - `scripts/build-app.sh`：release 编译与本机 ad-hoc 签名成功。
 - 已启动原生 .app 并通过辅助功能树及截图查看首次配置和主窗口；实际窗口有紫色麦克风、配置入口与两条转写流程。
-- `LiveSpeechTests/testChineseFileTranscription`：通过。使用 macOS Tingting 生成专用中文测试音频，明月现有 ElevenLabs Key 仅通过子进程环境注入，调用应用的 Transcriber 实现，scribe_v2 实际返回中文，测试耗时 1.671 秒。
+- `LiveSpeechTests/testChineseFileTranscription`：通过。使用 macOS Tingting 生成专用中文测试音频，经授权的 ElevenLabs 测试 Key 仅通过子进程环境注入，调用应用的 Transcriber 实现，scribe_v2 实际返回中文，测试耗时 1.671 秒。
 - 测试句：这是紫色麦克风的中文转写测试。请记住，明天上午十点开会，会议主题是产品设计。
 - 原始测试日志留在本地仓库之外 `work/violet-tests/live-test.log`，不包含凭据。
 - 麦克风授权请求已发出，但工具禁止操作系统权限提示；等待用户允许。不得将此记为麦克风录音通过。
@@ -38,3 +38,8 @@
 7. 将右侧剪刀从 8.7 秒拖至 6.9 秒，界面显示起点 4.1 秒、终点 6.9 秒、选段 2.8 秒。
 
 此证据覆盖：波形、左右裁剪、实际中文选段转写、复制、后台关窗保存和 agent 文件读取。不能证明真实麦克风/系统音频采集、睡眠恢复、长时间录音或 Gemini 实际服务。
+
+## 本机安装验证
+- DMG 已完成 hdiutil 完整性校验并挂载。应用复制到用户 Applications 目录后，codesign --verify --deep --strict 通过（ad-hoc 签名，不是公证）。
+- 安装后可启动配置引导与主界面，程序 SHA256 与构建产物一致：b6b703fce759b0c9e282d9170e439220b4c77a35db609a59883eabe19fe0ca6e。
+- 点击录音后状态为“等待麦克风授权…”，尚未获得采集成功证据。

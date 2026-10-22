@@ -24,7 +24,7 @@
 ## 已核实来源
 - https://github.com/JerryZLiu/Dayflow ：MIT，SwiftUI，macOS 14+，GitHub Releases DMG。
 - 本地 Backtrack 逆向报告：../backtrack-reverse-engineering/report.md（仅行为参考，不复制其代码或资产）。
-- 明月 voice-agent/.env.example：ASR_MODEL=scribe_v2_realtime，ASR_LANGUAGE=zh。密钥不进入本仓库。
+- 参考项目的配置示例：ASR_MODEL=scribe_v2_realtime，ASR_LANGUAGE=zh。密钥不进入本仓库。
 
 ## 尚未完成的验证
 目前没有真实录音、网络转写、UI 交互、安装测试或 GitHub 发布证据。不得以单元测试代替这些验收。
