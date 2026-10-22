@@ -56,3 +56,7 @@
 ## Debug 端到端验证入口
 
 仅 Debug 支持 `VIOLET_UI_TEST_WAV`（16kHz 单声道 WAV）、`VIOLET_UI_TEST_KEY`、`VIOLET_UI_TEST_DIRECTORY` 三个环境变量同时提供时载入合成音频。界面橙色标记测试模式；不请求麦克风权限、不把凭据写入 Keychain。用于真实 UI 与服务链路验证，不作为实际采集通过证据。Release 编译排除此分支。构建脚本默认 release，只有显式 `CONFIGURATION=debug` 才构建测试版。
+
+## 开源与安装状态（2026-10-23）
+
+公开源码：https://github.com/lindapu-1/violet-audio 。开发预览状态，尚未发布正式 Release。已从生成的 DMG 安装到用户 Applications 并启动验证。增加应用启动/系统唤醒时按用户此前启用状态恢复麦克风与系统音频；真实睡眠恢复仍待手动验收。

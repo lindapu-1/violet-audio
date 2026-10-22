@@ -7,12 +7,30 @@ import AppKit
     private var window: NSWindow?
     private var statusItem: NSStatusItem?
     private var statusMenu: NSMenu?
+    private var workspaceObservers: [NSObjectProtocol] = []
     func applicationDidFinishLaunching(_ notification: Notification) {
         installMenus()
         shortcut.action = { [weak self] in self?.recall() }
         if !shortcut.registered { model.status = "快捷键 ⌘⇧V 被其他应用占用，请使用菜单栏回溯。" }
         showWindow()
-        if !model.testFixture && UserDefaults.standard.bool(forKey: "recordingEnabled") { Task { await model.recorder.start() } }
+        resumeCapture()
+        let center = NSWorkspace.shared.notificationCenter
+        workspaceObservers.append(center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in
+                self?.model.recorder.suspend()
+                await self?.model.systemRecorder.suspend()
+            }
+        })
+        workspaceObservers.append(center.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.resumeCapture() }
+        })
+    }
+    private func resumeCapture() {
+        guard !model.testFixture else { return }
+        Task {
+            if UserDefaults.standard.bool(forKey: "recordingEnabled") { await model.recorder.start() }
+            if UserDefaults.standard.bool(forKey: "systemRecordingEnabled") { await model.systemRecorder.start() }
+        }
     }
     @objc func recall() { model.refresh(); model.status = "已回溯最新音轨"; showWindow() }
     @objc func settings() { model.settings = true; showWindow() }

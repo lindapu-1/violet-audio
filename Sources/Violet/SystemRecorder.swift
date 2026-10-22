@@ -30,12 +30,19 @@ import VioletCore
             self.output = output; self.stream = stream
             try await stream.startCapture()
             recording = true; error = nil
+            UserDefaults.standard.set(true, forKey: "systemRecordingEnabled")
         } catch {
             self.error = "系统音频未开始：\(error.localizedDescription)。请检查系统设置中的屏幕与系统音频录制权限。"
             stream = nil; output = nil
         }
     }
+    func suspend() async {
+        let wanted = UserDefaults.standard.bool(forKey: "systemRecordingEnabled")
+        await stop()
+        UserDefaults.standard.set(wanted, forKey: "systemRecordingEnabled")
+    }
     func stop() async {
+        UserDefaults.standard.set(false, forKey: "systemRecordingEnabled")
         do { try await stream?.stopCapture() } catch { self.error = error.localizedDescription }
         recording = false; stream = nil; output = nil
     }

@@ -61,6 +61,11 @@ import VioletCore
             UserDefaults.standard.set(true, forKey: "recordingEnabled") }
         catch { self.error = error.localizedDescription; stop() }
     }
+    func suspend() {
+        let wanted = UserDefaults.standard.bool(forKey: "recordingEnabled")
+        stop()
+        UserDefaults.standard.set(wanted, forKey: "recordingEnabled")
+    }
     func stop() {
         recovery?.cancel(); recovery = nil
         UserDefaults.standard.set(false, forKey: "recordingEnabled")
