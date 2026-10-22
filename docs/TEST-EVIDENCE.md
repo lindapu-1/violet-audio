@@ -49,3 +49,8 @@
 - 满容量模拟：向 16kHz 缓冲写入 1801 秒样本，保留长度严格为 1800 秒，起点前移 16000 帧，波形峰值正确；测试耗时 2.458 秒。这是容量逻辑验证，不是 30 分钟真实录音。
 - 当前本地 10 项常规测试通过；1 项网络测试默认跳过，先前真实 API 与 UI 测试证据仍有效。
 - 发布签名/公证脚本通过 bash 语法检查，未执行公证（没有 Developer ID Application 身份）。
+
+## 通用安装包
+- release 已分别交叉编译 arm64 与 x86_64，并用 lipo 合成通用 Mach-O；`lipo -archs` 验证包含两种架构，签名完整性通过。
+- 通用包已成功生成 DMG；Intel 仅有编译证据，未在 Intel 实机运行。
+- 提交 80d10cb 的 GitHub macOS CI 已完成并通过：https://github.com/lindapu-1/violet-audio/actions/runs/39810860213 。

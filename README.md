@@ -18,7 +18,7 @@ swift test
 open .build/Violet.app
 ```
 
-构建脚本生成本机临时签名的应用，公开发行仍需 Developer ID 签名与公证。
+Release 构建脚本生成 Apple Silicon + Intel 通用应用，并使用临时签名，公开发行仍需 Developer ID 签名与公证。
 
 ## 使用流程
 
